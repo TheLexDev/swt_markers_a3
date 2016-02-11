@@ -43,6 +43,8 @@ swt_markers_logicServer_regMark = {
 	_mark = _this select 1;
 	_channel = _mark select 1;
 	_mark pushBack time;
+	_mark pushBack "";
+	_mark pushBack (side _player);
 	swt_markers_count = swt_markers_count + 1;
 	_mark set [0, "SWT_M#"+ str swt_markers_count]; // BAD
 	swt_markers_send_mark = _mark;
@@ -262,6 +264,7 @@ swt_markers_logicServer_load = {
 		_x pushBack (name _player);
 		_x pushBack time;
 		_x pushBack true; //means loaded
+		_x pushBack (side _player);
 	} forEach _data;
 
 	if (swt_markers_logicServer_S find (side _player) == -1) then {

@@ -57,6 +57,7 @@ swt_markers_getColorChannel = {
 swt_markers_getColorName = {
 	_name = _this select 0;
 	_tag = _this select 1;
+	_sideParam = [_this, 2, ""] call BIS_fnc_param;
 	{
 		if (name _x == _name) exitWith {
 			_name = switch (side _x) do {
@@ -67,7 +68,16 @@ swt_markers_getColorName = {
 			};
 		};
 	} forEach (playableUnits+switchableUnits);
+	if (typeName _sideParam == "SIDE") then {
+		_name = switch (_sideParam) do {
+				case west: {format ["<%2 color='#6495ED'>%1</%2>", _name, _tag]};
+				case east: {format ["<%2 color='#E34234'>%1</%2>", _name, _tag]};
+				case resistance: {format ["<%2 color='#50C878'>%1</%2>", _name, _tag]};
+				case civilian: {format ["<%2 color='#FFED00'>%1</%2>", _name, _tag]};
+			};
+	};
 	_name;
+	
 };
 
 swt_markers_log = {
@@ -202,7 +212,8 @@ swt_markers_showInfo = {
 				_channel = _x select 1;
 				_channel = [_channel,"t"] call swt_markers_getColorChannel;
 				_time = _x select 9;
-				_colorname = [_name,"t"] call swt_markers_getColorName;
+				_side = _x select 11;
+				_colorname = [_name,"t", _side] call swt_markers_getColorName;
 				_Type = _x select 4;
 				_ctrl_info ctrlSetStructuredText parseText format ["<t size='0.8'>\
 <t align='center' color='#F88379'>%1 ID: %2" + (if (!isNil {_x select 10}) then {localize "STR_SWT_M_INFOLOADED"} else {""}) + "</t><br/>" + (localize "STR_SWT_M_INFOWIN") + (_time call _getFormatedTime) + "</t>",
