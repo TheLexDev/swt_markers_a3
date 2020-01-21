@@ -69,6 +69,7 @@ swt_markers_getColorName = {
 			};
 		};
 	} forEach (playableUnits+switchableUnits);
+	_name = _this select 0;
 	if (typeName _sideParam == "SIDE") then {
 		_name = switch (_sideParam) do {
 				case west: {format ["<%2 color='#6495ED'>%1</%2>", _name, _tag]};
