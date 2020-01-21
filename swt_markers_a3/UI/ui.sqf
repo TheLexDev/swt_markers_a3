@@ -24,6 +24,7 @@ swt_markers_ctrlState =   false;
 swt_markers_altState =    false;
 swt_markers_channel = localize "str_channel_group";
 swt_markers_delayCoeff = 25;
+swt_mouseButtonDown = false;
 
 if (isNil "swt_markers_pos_m") then {swt_markers_pos_m = [0,0]};
 
@@ -35,7 +36,7 @@ swt_markers_unavailable_channels = getArray (missionconfigfile >> "disableChanne
 _arr = swt_markers_available_channels;
 swt_markers_available_channels = [];
 {
-	if !(_forEachIndex in swt_markers_unavailable_channels) then {
+	if ((channelEnabled _forEachIndex) select 0) then {
 		swt_markers_available_channels pushBack _x;
 	};
 } forEach _arr;
@@ -77,7 +78,7 @@ swt_markers_getColorName = {
 			};
 	};
 	_name;
-	
+
 };
 
 swt_markers_log = {
@@ -214,6 +215,7 @@ swt_markers_showInfo = {
 				_time = _x select 9;
 				_side = _x select 11;
 				_colorname = [_name,"t", _side] call swt_markers_getColorName;
+
 				_Type = _x select 4;
 				_ctrl_info ctrlSetStructuredText parseText format ["<t size='0.8'>\
 <t align='center' color='#F88379'>%1 ID: %2" + (if (!isNil {_x select 10}) then {localize "STR_SWT_M_INFOLOADED"} else {""}) + "</t><br/>" + (localize "STR_SWT_M_INFOWIN") + (_time call _getFormatedTime) + "</t>",
@@ -281,17 +283,18 @@ swt_markers_setChannel = {
 	_text = _this select 1;
 	_control = _display displayCtrl 1100;
 	_control ctrlsetstructuredtext parsetext format ["<t size='0.8'>%1</t>","Description:"];
+
 	if (_text == "") then {_text = localize "str_channel_group"};
 	_control = _display displayCtrl 1100;
 	_control ctrlsetstructuredtext parsetext format ["<t size='0.8'>%1</t>",_text];
 
 	switch (_text) do {
-		case (localize "str_channel_side"): {_control ctrlSetTextColor colorSideChannel;};
-		case (localize "str_channel_command"): {_control ctrlSetTextColor colorCommandChannel;};
-		case (localize "str_channel_direct"): {_control ctrlSetTextColor [1,1,1,1]};
-		case (localize "str_channel_global"): {_control ctrlSetTextColor colorGlobalChannel;};
-		case (localize "str_channel_vehicle"): {_control ctrlSetTextColor colorVehicleChannel;};
-		case (localize "str_channel_group"): {_control ctrlSetTextColor colorGroupChannel;};
+		case (localize "str_channel_side"): {_control ctrlSetTextColor colorSideChannel; setCurrentChannel 1;};
+		case (localize "str_channel_command"): {_control ctrlSetTextColor colorCommandChannel; setCurrentChannel 2;};
+		case (localize "str_channel_direct"): {_control ctrlSetTextColor [1,1,1,1]; setCurrentChannel 5;};
+		case (localize "str_channel_global"): {_control ctrlSetTextColor colorGlobalChannel; setCurrentChannel 0;};
+		case (localize "str_channel_vehicle"): {_control ctrlSetTextColor colorVehicleChannel; setCurrentChannel 4;};
+		case (localize "str_channel_group"): {_control ctrlSetTextColor colorGroupChannel; setCurrentChannel 3;};
 	};
 
 };

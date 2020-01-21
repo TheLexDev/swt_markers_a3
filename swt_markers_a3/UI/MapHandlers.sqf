@@ -1,5 +1,7 @@
 swt_markers_MapMouseUp = {
-	if (_this select 1 == 0) then {
+    if (_this select 1 == 0) then {
+    	swt_mouseButtonDown = false;
+
 		if !(isNil "swt_mark_to_change_dir") then {
 			_dir = + swt_markers_direction;
 			_mark = swt_mark_to_change_dir;
@@ -53,10 +55,14 @@ swt_markers_MapMouseDown = {
     _shift = _this select 4;
     _ctrlKey = _this select 5;
     _alt = _this select 6;
+
+
     if (!_shift and !_alt and _ctrlKey and ((_this select 1) == 0)) then {
+    	swt_mouseButtonDown = true;
     	["fast",[]] call swt_markers_sys_sendMark;
     } else {
 		if (!_shift and !_ctrlKey and _alt and ((_this select 1) == 0)) then {
+			swt_mouseButtonDown = true;
 			{
 				_pos = getMarkerPos _x;
 				_pos = _ctrl ctrlMapWorldToScreen _pos;
@@ -79,6 +85,7 @@ swt_markers_MapMouseDown = {
 			} forEach swt_markers_allMarkers;
 		} else {
 			if (!_shift and _ctrlKey and _alt and ((_this select 1) == 0)) then {
+				swt_mouseButtonDown = true;
 		    	swt_markers_line_params_world = [(_display displayCtrl 51) ctrlMapScreenToWorld _pos_click,(_display displayCtrl 51) ctrlMapScreenToWorld _pos_click,0,5,0];
 		    	createMarkerLocal ["SWT_MARKERS LOCAL LINE", (_display displayCtrl 51) ctrlMapScreenToWorld _pos_click];
 				createMarkerLocal ["SWT_MARKERS LOCAL INFO", (_display displayCtrl 51) ctrlMapScreenToWorld _pos_click];
@@ -93,6 +100,7 @@ swt_markers_MapMouseDown = {
 		    	"SWT_MARKERS LOCAL LINE" setMarkerSizeLocal [swt_markers_line_params_world select 3,0];
 		    } else {
 				if (_shift and !_ctrlKey and _alt and ((_this select 1) == 0)) then {
+					swt_mouseButtonDown = true;
 			    	swt_markers_ellipse = [(_display displayCtrl 51) ctrlMapScreenToWorld _pos_click,(_display displayCtrl 51) ctrlMapScreenToWorld _pos_click];
 			    	createMarkerLocal ["SWT_MARKERS LOCAL ELLIPSE", (_display displayCtrl 51) ctrlMapScreenToWorld _pos_click];
 					createMarkerLocal ["SWT_MARKERS LOCAL INFO", (_display displayCtrl 51) ctrlMapScreenToWorld _pos_click];
@@ -106,7 +114,8 @@ swt_markers_MapMouseDown = {
 			    	"SWT_MARKERS LOCAL ELLIPSE" setMarkerColorLocal swt_markers_mark_color;
 			    	"SWT_MARKERS LOCAL ELLIPSE" setMarkerSizeLocal [0,0];
 			    } else {
-					if (_shift and _ctrlKey and !_alt and ((_this select 1) == 0)) then {
+					if (_shift and _ctrlKey and _alt and ((_this select 1) == 0)) then { // crtl + shift + alt for marker on road. Who ever use this?
+						swt_mouseButtonDown = true;
 						_pos = (_display displayCtrl 51) ctrlMapScreenToWorld _pos_click;
 						_roads = _pos nearRoads 50;
 						_min = _roads select 0;
@@ -117,6 +126,7 @@ swt_markers_MapMouseDown = {
 						["road", getPosATL _min] call swt_markers_sys_sendMark;
 					} else {
 						if ((_this select 1) == 0) then {
+							swt_mouseButtonDown = true;
 							{
 								_pos = getMarkerPos _x;
 								_pos = _ctrl ctrlMapWorldToScreen _pos;
@@ -249,7 +259,7 @@ swt_markers_MapKeyDown = {
 			true
 		};
 	} else {
-	    if (_dikCode == 211) then { //DEL
+	    if (_dikCode == 211 && !swt_mouseButtonDown) then { //DEL
 	    	if (swt_markers_DisableLoc) exitWith {diag_log "SWT MARKERS: DEL DISABLED";};
 			{
 				_pos = getMarkerPos _x;

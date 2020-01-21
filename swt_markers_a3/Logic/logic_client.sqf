@@ -3,29 +3,19 @@ swt_markers_allMarkers_params = [];
 swt_markers_DisableLoc = false;
 
 swt_markers_check_tfar_lr = {
+	if ( !(missionNamespace getVariable ["wmt_param_SideChannelByLR", true]) || !(missionNamespace getVariable ["sideChannel_with_TFAR_LR", true]) ) exitWith { true }; //sideChannel_with_TFAR_LR -- deprecated.
 	_go = true;
 	if (time > 5) then {
 		_go = false;
 		{
 			if !_go then {
-				if (_x select 1 == "radio_settings") then {
-					_go = switch (getText(configFile >> "CfgVehicles" >> typeof (_x select 0) >> "tf_encryptionCode")) do {
-								case "tf_guer_radio_code" : {resistance == playerSide};
-								case "tf_east_radio_code" : {east == playerSide};
-								case "tf_west_radio_code" : {west == playerSide};
-								default {false}
-							};
-				} else {
-					_code = (_x call TFAR_fnc_getLrSettings);
-					if (count (_code) > 0) then {
-						_code = _code select 4;
-						_go = switch (playerSide) do {
-							case resistance: {_code == tf_guer_radio_code};
-							case east: {_code == tf_east_radio_code};
-							case west: {_code == tf_west_radio_code};
-							default {false}
-						};
-					};
+				_go = switch (_x call TFAR_fnc_getLrRadioCode) do
+				{
+					case "_bluefor": { west == playerSide || [playerSide, west] call BIS_fnc_sideIsFriendly };
+					case "_opfor": { east == playerSide || [playerSide, east] call BIS_fnc_sideIsFriendly };
+					case "_independent": { independent == playerSide || [playerSide, independent] call BIS_fnc_sideIsFriendly };
+
+					default {false};
 				};
 			};
 			false

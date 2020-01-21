@@ -57,13 +57,40 @@ switch (_action) do {
     	[0,0] call swt_markers_MapMouseUp;
 		_displayMark = _params;
 		_WorldCoord = (_displayMap displayCtrl 51) ctrlMapScreenToWorld [((ctrlPosition (_displayMark displayCtrl 204)) select 0)+((ctrlPosition (_displayMark displayCtrl 204)) select 2)/2,((ctrlPosition (_displayMark displayCtrl 204)) select 1)+((ctrlPosition (_displayMark displayCtrl 204)) select 3)/2];
-		_text =  _text + ctrlText (_displayMark displayctrl 203);
+
+		// Ограничен разер вводимого текста
+		_inputText = ctrlText (_displayMark displayctrl 203);
+		if (time > 5) then {
+			switch (swt_markers_channel) do {
+				case (localize "str_channel_side"): {
+					_inputText = toString ((toArray _inputText) select [0,15]);
+				};
+				default {
+					_inputText = toString ((toArray _inputText) select [0,50]);
+				};
+			};
+		};
+		_text =  _text + _inputText;
+
 		_send pushBack [_swtid,_channel,_text, _WorldCoord, swt_cfgMarkers_names find swt_markers_mark_type, swt_cfgMarkerColors_names find swt_markers_mark_color, swt_markers_mark_dir, sweetk_s, name player];
 		if (!(swt_markers_ctrlState)) then {(_displayMark closeDisplay 0)};
     };
 	case "fast": {
 		_WorldCoord = (_displayMap displayCtrl 51) ctrlMapScreenToWorld swt_markers_pos_m;
-		if (swt_markers_save_text) then {_text = _text + swt_markers_text};
+
+    	if (time > 5) then {
+    		switch (swt_markers_channel) do {
+				case (localize "str_channel_side"): {
+					if (swt_markers_save_text) then {_text = _text + (swt_markers_text select [0,15])};
+				};
+				default {
+					if (swt_markers_save_text) then {_text = _text + (swt_markers_text select [0,50])};
+				};
+			};
+    	} else {
+            if (swt_markers_save_text) then {_text = _text + swt_markers_text};
+        };
+
 		_send pushBack [_swtid,_channel,_text,_WorldCoord,swt_cfgMarkers_names find swt_markers_mark_type,swt_cfgMarkerColors_names find swt_markers_mark_color,swt_markers_mark_dir,sweetk_s, name player];
 	};
 	case "line": {
